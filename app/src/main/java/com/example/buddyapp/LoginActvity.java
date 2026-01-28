@@ -22,8 +22,7 @@ public class LoginActvity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
 
         // For demonstration, let's add a default user if one doesn't exist.
-        // In a real app, you'd have a separate registration flow.
-        if (dbHelper.checkUser("admin", "admin") == false) {
+        if (dbHelper.checkUser("admin", "admin") == -1) {
             dbHelper.addUser("admin", "admin");
         }
     }
@@ -37,9 +36,11 @@ public class LoginActvity extends AppCompatActivity {
             return;
         }
 
-        if (dbHelper.checkUser(username, password)) {
+        int userId = dbHelper.checkUser(username, password);
+        if (userId != -1) {
             Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("USER_ID", userId);
             startActivity(intent);
             finish(); // Finish LoginActivity so user can't go back to it
         } else {

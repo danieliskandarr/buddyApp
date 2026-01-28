@@ -23,9 +23,9 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void registerUser(View view) {
-        String username = etUsername.getText().toString();
-        String password = etPassword.getText().toString();
-        String confirmPassword = etConfirmPassword.getText().toString();
+        String username = etUsername.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+        String confirmPassword = etConfirmPassword.getText().toString().trim();
 
         if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
@@ -37,18 +37,18 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Check if user already exists
-        if (dbHelper.checkUser(username, password)) {
-            Toast.makeText(this, "User already exists", Toast.LENGTH_SHORT).show();
+        // Check if username is already taken
+        if (dbHelper.isUsernameTaken(username)) {
+            Toast.makeText(this, "Username is already taken. Please choose another.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // Add user to database
         if (dbHelper.addUser(username, password)) {
-            Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Registration successful! You can now login.", Toast.LENGTH_LONG).show();
             finish(); // Go back to LoginActivity
         } else {
-            Toast.makeText(this, "Registration failed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Registration failed. Please try again.", Toast.LENGTH_SHORT).show();
         }
     }
 }

@@ -5,8 +5,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
+
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -15,8 +18,9 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     SearchView searchView;
     ArrayList<Friend> friendList;
-    ArrayList<String> displayList; // Just to display names in simple list
+    ArrayList<String> displayList;
     ArrayAdapter<String> adapter;
+    private int userId; // To store the logged-in user's ID
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,15 +31,25 @@ public class MainActivity extends AppCompatActivity {
         listView = findViewById(R.id.listView);
         searchView = findViewById(R.id.searchView);
 
-        loadFriends(""); // Load all friends initially
+        // Get the userId from the intent
+        userId = getIntent().getIntExtra("USER_ID", -1);
+        if (userId == -1) {
+            // If for some reason userId is not passed, handle it
+            // For example, go back to login
+            Toast.makeText(this, "User not identified. Please login again.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
 
-        // Search Functionality [cite: 28]
+        loadFriends(""); // Load all friends for the current user
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 loadFriends(query);
                 return false;
             }
+
             @Override
             public boolean onQueryTextChange(String newText) {
                 loadFriends(newText);
@@ -43,11 +57,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Handle clicks on list items (Open Edit Page)
         listView.setOnItemClickListener((parent, view, position, id) -> {
             Friend selectedFriend = friendList.get(position);
             Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
-            intent.putExtra("ID", selectedFriend.getId()); // Pass ID to edit
+            intent.putExtra("USER_ID", userId); // Pass user ID
+            intent.putExtra("ID", selectedFriend.getId()); // Pass friend ID to edit
             startActivity(intent);
         });
     }
@@ -55,25 +69,36 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadFriends(""); // Refresh list when coming back
+        if (userId != -1) {
+            loadFriends(searchView.getQuery().toString()); // Refresh list with current search query
+        }
     }
 
     private void loadFriends(String query) {
-        friendList = dbHelper.getAllFriends(query);
+        friendList = dbHelper.getAllFriends(userId, query); // Pass userId to get specific friends
         displayList = new ArrayList<>();
         for (Friend f : friendList) {
-            // Display Name and State in the list
             displayList.add(f.getName() + " (" + f.getAddress4() + ")");
         }
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, displayList);
-        listView.setAdapter(adapter);
+        if (adapter == null) {
+            adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, displayList);
+            listView.setAdapter(adapter);
+        } else {
+            adapter.clear();
+            adapter.addAll(displayList);
+            adapter.notifyDataSetChanged();
+        }
     }
 
     public void goToAdd(View view) {
-        startActivity(new Intent(this, AddEditActivity.class));
+        Intent intent = new Intent(this, AddEditActivity.class);
+        intent.putExtra("USER_ID", userId); // Pass user ID
+        startActivity(intent);
     }
 
     public void goToReports(View view) {
-        startActivity(new Intent(this, ReportActivity.class));
+        Intent intent = new Intent(this, ReportActivity.class);
+        intent.putExtra("USER_ID", userId); // Pass user ID
+        startActivity(intent);
     }
 }
