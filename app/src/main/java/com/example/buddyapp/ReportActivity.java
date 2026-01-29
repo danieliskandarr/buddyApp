@@ -9,12 +9,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
@@ -57,9 +59,15 @@ public class ReportActivity extends AppCompatActivity {
         int females = dbHelper.getGenderCount(userId, "Female");
 
         ArrayList<PieEntry> entries = new ArrayList<>();
-        entries.add(new PieEntry(males, "Male"));
-        entries.add(new PieEntry(females, "Female"));
+        if(males > 0) entries.add(new PieEntry(males, "Male"));
+        if(females > 0) entries.add(new PieEntry(females, "Female"));
 
+
+        if(entries.isEmpty()){
+            pieChart.setCenterText("No Data Available");
+            pieChart.invalidate();
+            return;
+        }
         PieDataSet dataSet = new PieDataSet(entries, "Gender Distribution");
         dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
         dataSet.setValueTextSize(12f);
@@ -82,15 +90,28 @@ public class ReportActivity extends AppCompatActivity {
             labels.add(entry.getKey());
             index++;
         }
-
+        if(entries.isEmpty()){
+            barChart.setNoDataText("No Data Available");
+            barChart.invalidate();
+            return;
+        }
         BarDataSet dataSet = new BarDataSet(entries, "Friends per State");
         dataSet.setColors(ColorTemplate.JOYFUL_COLORS);
-        dataSet.setValueTextSize(12f);
+        dataSet.setValueTextSize(10f);
 
         BarData data = new BarData(dataSet);
         barChart.setData(data);
         barChart.getDescription().setEnabled(false);
-        barChart.animateY(1000);
+
+        // --- Configure X-Axis ---
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f);
+        xAxis.setGranularityEnabled(true);
+        xAxis.setLabelRotationAngle(-45); // Rotate labels for better fit
+
+        barChart.animateY(1200);
         barChart.invalidate();
     }
 

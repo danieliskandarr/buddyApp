@@ -284,25 +284,23 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Address Line 4 -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
+                <!-- State Spinner -->
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:hint="State Name"
-                    app:boxCornerRadiusTopStart="8dp"
-                    app:boxCornerRadiusTopEnd="8dp"
-                    app:boxCornerRadiusBottomStart="8dp"
-                    app:boxCornerRadiusBottomEnd="8dp"
-                    app:helperText="Address Line 4"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                    android:text="State"
+                    android:textColor="#424242"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"/>
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etAddr4"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="textCapWords"/>
-
-                </com.google.android.material.textfield.TextInputLayout>
+                <Spinner
+                    android:id="@+id/spinnerState"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/abc_spinner_textfield_background_material"
+                    android:padding="8dp"/>
 
             </LinearLayout>
 

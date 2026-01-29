@@ -3,10 +3,12 @@ package com.example.buddyapp;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
@@ -15,11 +17,13 @@ import androidx.appcompat.app.AppCompatActivity;
 public class AddEditActivity extends AppCompatActivity {
 
     DBHelper dbHelper;
-    EditText etName, etHp, etEmail, etAddr1, etAddr2, etAddr3, etAddr4;
+    EditText etName, etHp, etEmail, etAddr1, etAddr2, etAddr3;
+    Spinner spinnerState;
     RadioGroup rgGender;
     Button btnDelete;
     private int userId;
     private int friendId = -1; // -1 means new friend
+    private ArrayAdapter<CharSequence> stateAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +50,15 @@ public class AddEditActivity extends AppCompatActivity {
         etAddr1 = findViewById(R.id.etAddr1);
         etAddr2 = findViewById(R.id.etAddr2);
         etAddr3 = findViewById(R.id.etAddr3);
-        etAddr4 = findViewById(R.id.etAddr4);
+        spinnerState = findViewById(R.id.spinnerState);
         rgGender = findViewById(R.id.rgGender);
         btnDelete = findViewById(R.id.btnDelete);
+
+        // Setup Spinner
+        stateAdapter = ArrayAdapter.createFromResource(this,
+                R.array.states_array, android.R.layout.simple_spinner_item);
+        stateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerState.setAdapter(stateAdapter);
 
         if (getIntent().hasExtra("ID")) {
             friendId = getIntent().getIntExtra("ID", -1);
@@ -68,7 +78,11 @@ public class AddEditActivity extends AppCompatActivity {
             etAddr1.setText(friend.getAddress1());
             etAddr2.setText(friend.getAddress2());
             etAddr3.setText(friend.getAddress3());
-            etAddr4.setText(friend.getAddress4());
+
+            // Set spinner selection
+            int spinnerPosition = stateAdapter.getPosition(friend.getAddress4());
+            spinnerState.setSelection(spinnerPosition);
+
             if (friend.getGender().equals("Male")) {
                 ((RadioButton) findViewById(R.id.rbMale)).setChecked(true);
             } else {
@@ -84,17 +98,17 @@ public class AddEditActivity extends AppCompatActivity {
         String a1 = etAddr1.getText().toString();
         String a2 = etAddr2.getText().toString();
         String a3 = etAddr3.getText().toString();
-        String a4 = etAddr4.getText().toString();
+        String state = spinnerState.getSelectedItem().toString();
 
         int selectedId = rgGender.getCheckedRadioButtonId();
         RadioButton radioButton = findViewById(selectedId);
         String gender = (radioButton != null) ? radioButton.getText().toString() : "Male";
 
         if (friendId == -1) {
-            dbHelper.addFriend(userId, name, gender, hp, email, a1, a2, a3, a4);
+            dbHelper.addFriend(userId, name, gender, hp, email, a1, a2, a3, state);
             Toast.makeText(this, "Friend Added!", Toast.LENGTH_SHORT).show();
         } else {
-            dbHelper.updateFriend(userId, friendId, name, gender, hp, email, a1, a2, a3, a4);
+            dbHelper.updateFriend(userId, friendId, name, gender, hp, email, a1, a2, a3, state);
             Toast.makeText(this, "Friend Updated!", Toast.LENGTH_SHORT).show();
         }
         finish();
