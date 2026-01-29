@@ -16,6 +16,8 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        if (getSupportActionBar() != null) { getSupportActionBar().hide(); }
+
         dbHelper = new DBHelper(this);
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);

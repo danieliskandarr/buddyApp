@@ -1,116 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#FAFAFA">
+    android:background="#F8F9FA"> <com.google.android.material.appbar.AppBarLayout
+    android:id="@+id/appBarLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    app:elevation="0dp">
 
-    <!-- Header Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#6200EE"
-        android:elevation="4dp"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingHorizontal="24dp"
+        android:paddingTop="32dp"
+        android:paddingBottom="16dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
             android:text="Friends"
-            android:textColor="@android:color/white"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textColor="#1C1B1F"
+            android:textSize="32sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:alpha="0.6"
             android:text="Manage your connections"
-            android:textColor="#E1BEE7"
-            android:textSize="14sp"
-            android:layout_marginTop="4dp" />
-
+            android:textColor="#49454F"
+            android:textSize="14sp" />
     </LinearLayout>
 
-    <!-- Search Section with Card Style -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="3dp">
+        android:layout_height="50dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="16dp"
+        app:cardBackgroundColor="#FFFFFF"
+        app:cardCornerRadius="25dp"
+        app:cardElevation="2dp"
+        app:strokeWidth="0dp">
 
         <androidx.appcompat.widget.SearchView
             android:id="@+id/searchView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:iconifiedByDefault="false"
-            android:queryHint="Search friends by name..."
-            app:queryHint="Search friends by name..." />
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- List Section -->
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="3dp">
-
-        <ListView
-            android:id="@+id/listView"
-            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:divider="#E0E0E0"
-            android:dividerHeight="1dp"
-            android:padding="8dp" />
-
+            app:iconifiedByDefault="false"
+            app:queryBackground="@android:color/transparent"
+            app:queryHint="Search friends..." />
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Bottom Action Buttons -->
+</com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="100dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
         android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="@android:color/white"
-        android:elevation="8dp"
-        android:gravity="center">
+        android:paddingHorizontal="20dp"
+        android:paddingBottom="40dp"
+        android:gravity="center_vertical">
 
         <com.google.android.material.button.MaterialButton
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:onClick="goToReports"
-            android:text="View Reports"
-            android:textSize="15sp"
-            app:icon="@android:drawable/ic_menu_report_image"
-            app:iconGravity="textStart"
-            app:cornerRadius="8dp"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            app:strokeColor="#6200EE"
-            android:textColor="#6200EE" />
+            android:layout_width="wrap_content"
+            android:layout_height="54dp"
+            android:onClick="goToReports"
+            android:text="Reports"
+            android:textColor="#6750A4"
+            app:strokeColor="#6750A4"
+            app:strokeWidth="1.5dp"
+            app:cornerRadius="27dp"
+            app:icon="@android:drawable/ic_menu_report_image"
+            app:iconTint="#6750A4" />
 
-        <com.google.android.material.button.MaterialButton
+        <View
             android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_weight="1"
-            android:layout_marginStart="8dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/fabAddFriend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:onClick="goToAdd"
             android:text="Add Friend"
-            android:textSize="15sp"
+            android:textColor="@android:color/white"
+            app:backgroundTint="#6750A4"
             app:icon="@android:drawable/ic_input_add"
-            app:iconGravity="textStart"
-            app:cornerRadius="8dp"
-            app:backgroundTint="#018786"
-            android:textColor="@android:color/white" />
+            app:iconTint="@android:color/white"
+            app:cornerRadius="27dp" />
 
     </LinearLayout>
 
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

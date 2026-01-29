@@ -7,7 +7,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class LoginActvity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
 
     private DBHelper dbHelper;
     private EditText etUsername, etPassword;
@@ -16,6 +16,8 @@ public class LoginActvity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        if (getSupportActionBar() != null) { getSupportActionBar().hide(); }
 
         dbHelper = new DBHelper(this);
         etUsername = findViewById(R.id.etUsername);

@@ -1,50 +1,61 @@
 package com.example.buddyapp;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.card.MaterialCardView;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     DBHelper dbHelper;
-    ListView listView;
+    RecyclerView recyclerView;
     SearchView searchView;
-    ArrayList<Friend> friendList;
-    ArrayList<String> displayList;
-    ArrayAdapter<String> adapter;
-    private int userId; // To store the logged-in user's ID
+    FriendAdapter adapter;
+    ArrayList<Friend> friendList = new ArrayList<>();
+    private int userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        dbHelper = new DBHelper(this);
-        listView = findViewById(R.id.listView);
-        searchView = findViewById(R.id.searchView);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
 
-        // Get the userId from the intent
+        dbHelper = new DBHelper(this);
+        searchView = findViewById(R.id.searchView);
+        recyclerView = findViewById(R.id.recyclerView);
+
         userId = getIntent().getIntExtra("USER_ID", -1);
         if (userId == -1) {
-            // If for some reason userId is not passed, handle it
-            // For example, go back to login
-            Toast.makeText(this, "User not identified. Please login again.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "User not identified.", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
 
-        loadFriends(""); // Load all friends for the current user
+        // Setup RecyclerView
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new FriendAdapter(friendList);
+        recyclerView.setAdapter(adapter);
+
+        loadFriends("");
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -59,49 +70,88 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+    }
 
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            Friend selectedFriend = friendList.get(position);
-            Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
-            intent.putExtra("USER_ID", userId); // Pass user ID
-            intent.putExtra("ID", selectedFriend.getId()); // Pass friend ID to edit
-            startActivity(intent);
-        });
+    private void loadFriends(String query) {
+        friendList.clear();
+        friendList.addAll(dbHelper.getAllFriends(userId, query));
+        adapter.notifyDataSetChanged();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (userId != -1) {
-            loadFriends(searchView.getQuery().toString()); // Refresh list with current search query
+        if (searchView != null) {
+            loadFriends(searchView.getQuery().toString());
         }
     }
 
-    private void loadFriends(String query) {
-        friendList = dbHelper.getAllFriends(userId, query); // Pass userId to get specific friends
-        displayList = new ArrayList<>();
-        for (Friend f : friendList) {
-            displayList.add(f.getName() + " (" + f.getAddress4() + ")");
+    // --- Fixed Adapter Class ---
+    class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder> {
+        ArrayList<Friend> list;
+
+        FriendAdapter(ArrayList<Friend> list) {
+            this.list = list;
         }
-        if (adapter == null) {
-            adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, displayList);
-            listView.setAdapter(adapter);
-        } else {
-            adapter.clear();
-            adapter.addAll(displayList);
-            adapter.notifyDataSetChanged();
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_friend, parent, false);
+            return new ViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            Friend f = list.get(position);
+            holder.name.setText(f.getName());
+            holder.address.setText(f.getAddress4());
+
+            // Dynamic Color Logic based on Gender
+            if (f.getGender() != null && f.getGender().equalsIgnoreCase("Male")) {
+                holder.card.setCardBackgroundColor(Color.parseColor("#E3F2FD")); // Light Blue
+            } else if (f.getGender() != null && f.getGender().equalsIgnoreCase("Female")) {
+                holder.card.setCardBackgroundColor(Color.parseColor("#FFEBEE")); // Light Pink/Red
+            } else {
+                holder.card.setCardBackgroundColor(Color.WHITE);
+            }
+
+            holder.itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
+                intent.putExtra("USER_ID", userId);
+                intent.putExtra("ID", f.getId());
+                startActivity(intent);
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return list.size();
+        }
+
+        // Single, Correct ViewHolder Class
+        class ViewHolder extends RecyclerView.ViewHolder {
+            TextView name, address;
+            MaterialCardView card;
+
+            ViewHolder(View itemView) {
+                super(itemView);
+                name = itemView.findViewById(R.id.txtName);
+                address = itemView.findViewById(R.id.txtAddress);
+                card = itemView.findViewById(R.id.friendCard);
+            }
         }
     }
 
     public void goToAdd(View view) {
         Intent intent = new Intent(this, AddEditActivity.class);
-        intent.putExtra("USER_ID", userId); // Pass user ID
+        intent.putExtra("USER_ID", userId);
         startActivity(intent);
     }
 
     public void goToReports(View view) {
         Intent intent = new Intent(this, ReportActivity.class);
-        intent.putExtra("USER_ID", userId); // Pass user ID
+        intent.putExtra("USER_ID", userId);
         startActivity(intent);
     }
 
@@ -114,8 +164,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.action_logout) {
-            // Handle logout
-            Intent intent = new Intent(MainActivity.this, LoginActvity.class);
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
