@@ -172,4 +172,18 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    public void handleLogout(View view) {
+        // Optional: Show a "Logging out..." toast
+        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+
+        // Create Intent for LoginActivity (or LoginActvity based on your filename)
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+
+        // These flags ensure the user cannot press "Back" to return to the Friends list
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        startActivity(intent);
+        finish();
+    }
 }
